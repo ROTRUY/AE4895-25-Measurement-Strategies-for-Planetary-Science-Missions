@@ -17,6 +17,11 @@ def read_spectrum(filepath: str):
     
     return wave, intensity
 
+def detect_peaks(wavenumber, transmittance, prominence=1.5):
+    inverted = -transmittance
+    peaks, properties = find_peaks(inverted, prominence=prominence)
+    return wavenumber[peaks], transmittance[peaks]
+
 AEMA01_wave, AEMA01_intensity = read_spectrum(r"RamanTxt\sample1.txt")    # Martian dust analogue
 AEMA02_wave, AEMA02_intensity = read_spectrum(r"RamanTxt\sample2.txt")    # Jezero dust analogue
 AEFE01_wave, AEFE01_intensity = read_spectrum(r"RamanTxt\sample3v2.txt")  # Hematite reference
