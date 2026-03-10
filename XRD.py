@@ -17,10 +17,10 @@ def read_spectrum(filepath: str):
     
     return angle, intensity
 
-def detect_peaks(wavenumber, transmittance, height=10000):
-    inverted = -transmittance
-    peaks, _ = find_peaks(inverted, height=height)
-    return wavenumber[peaks], transmittance[peaks]
+def detect_peaks(angle, intensity, prominence=200, distance=1):
+    peaks, _ = find_peaks(intensity, prominence=prominence, distance=distance)
+
+    return angle[peaks], intensity[peaks]
 
 # Read data
 AEMA01_angle, AEMA01_intensity = read_spectrum(r"XRD\\mars_analogue.txt")    # Martian dust analogue
@@ -28,9 +28,9 @@ AEFE01_angle, AEFE01_intensity = read_spectrum(r"XRD\\aefe01.txt")  # Hematite r
 AEFE02_angle, AEFE02_intensity = read_spectrum(r"XRD\\aefe02.txt")  # Magnetite reference
 
 # Get peaks
-AEMA01_peaks = detect_peaks(AEMA01_angle, AEMA01_intensity)
-AEFE01_peaks = detect_peaks(AEFE01_angle, AEFE01_intensity)
-AEFE02_peaks = detect_peaks(AEFE02_angle, AEFE02_intensity)
+AEMA01_peaks = detect_peaks(AEMA01_angle, AEMA01_intensity, 45, 1)
+AEFE01_peaks = detect_peaks(AEFE01_angle, AEFE01_intensity, 200, 1)
+AEFE02_peaks = detect_peaks(AEFE02_angle, AEFE02_intensity, 200, 1)
 
 # Define the spectra data and metadata for plotting
 to_plot = [
@@ -44,9 +44,10 @@ for item in to_plot:
     plt.figure(figsize=(10, 6))
     plt.plot(item[1], item[2], label=item[3], color=item[4])
     # Mark peaks
-    plt.scatter(*item[5], color=item[4], marker='x')
+    peakColour = "brown"
+    plt.scatter(*item[5], color=peakColour, marker='x')
     for wn, tr in zip(*item[5]):
-        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=item[4])
+        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
 
     plt.xlabel('Angle (°)')
     plt.ylabel('Intensity')
@@ -60,11 +61,18 @@ for item in to_plot:
 # Plot all spectra together
 plt.figure(figsize=(10, 6))
 plt.plot(AEMA01_angle, AEMA01_intensity, label="Global Martian Dust Analogue", color="blue")
-plt.scatter(*AEMA01_peaks, color="blue")
 plt.plot(AEFE01_angle, AEFE01_intensity, label="Hematite", color="red")
-plt.scatter(*AEFE01_peaks, color="red")
 plt.plot(AEFE02_angle, AEFE02_intensity, label="Magnetite", color="black")
-plt.scatter(*AEFE02_peaks, color="black")
+peakColour = "black"
+plt.scatter(*AEMA01_peaks, color=peakColour, marker='x')
+plt.scatter(*AEFE01_peaks, color=peakColour, marker='x')
+plt.scatter(*AEFE02_peaks, color=peakColour, marker='x')
+for wn, tr in zip(*AEMA01_peaks):
+    plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+for wn, tr in zip(*AEFE01_peaks):
+    plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+for wn, tr in zip(*AEFE02_peaks):
+    plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
 plt.xlabel('Angle (°)')
 plt.ylabel('Intensity')
 plt.title("XRD Spectra of Martian Dust Analogue and References with peaks")
