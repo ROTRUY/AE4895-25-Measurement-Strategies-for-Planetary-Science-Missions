@@ -17,25 +17,73 @@ def read_spectrum(filepath: str):
     
     return angle, intensity
 
-AEMA01_angle, AEMA01_intensity = read_spectrum(r"RamanTxt\sample1.txt")    # Martian dust analogue
-AEFE01_angle, AEFE01_intensity = read_spectrum(r"RamanTxt\sample3v2.txt")  # Hematite reference
-AEFE02_angle, AEFE02_intensity = read_spectrum(r"RamanTxt\sample4v2.txt")  # Magnetite reference
+def detect_peaks(angle, intensity, prominence=200, distance=1):
+    peaks, _ = find_peaks(intensity, prominence=prominence, distance=distance)
+
+    return angle[peaks], intensity[peaks]
+
+# Read data
+AEMA01_angle, AEMA01_intensity = read_spectrum(r"XRD\\AEMA01.txt")  # Martian dust analogue
+AEFE01_angle, AEFE01_intensity = read_spectrum(r"XRD\\AEFE01.txt")  # Hematite reference
+AEFE02_angle, AEFE02_intensity = read_spectrum(r"XRD\\AEFE02.txt")  # Magnetite reference
+
+AEMA01_angle_11, AEMA01_intensity_11 = read_spectrum(r"XRD\\AEMA01_11.txt")  # Martian dust analogue of G11, for cross-checking
+AEMA02_angle_11, AEMA02_intensity_11 = read_spectrum(r"XRD\\AEMA02_11.txt")  # Jezero dust analogue of G11, for cross-checking
+
+# Get peaks
+AEMA01_peaks = detect_peaks(AEMA01_angle, AEMA01_intensity, 50, 1)
+AEMA01_11_peaks = detect_peaks(AEMA01_angle_11, AEMA01_intensity_11, 200, 1)
+AEMA02_11_peaks = detect_peaks(AEMA02_angle_11, AEMA02_intensity_11, 30, 1)
+AEFE01_peaks = detect_peaks(AEFE01_angle, AEFE01_intensity, 200, 1)
+AEFE02_peaks = detect_peaks(AEFE02_angle, AEFE02_intensity, 200, 1)
 
 # Define the spectra data and metadata for plotting
 to_plot = [
-    ("AEMA01", AEMA01_angle, AEMA01_intensity, "Global Martian Dust Analogue", "blue"),
-    ("AEFE01", AEFE01_angle, AEFE01_intensity, "Hematite",  "red"),
-    ("AEFE02", AEFE02_angle, AEFE02_intensity, "Magnetite", "black")
+    ("AEMA01", AEMA01_angle, AEMA01_intensity, "Global Martian Dust Analogue", "blue", AEMA01_peaks),
+    ("AEMA01_11", AEMA01_angle_11, AEMA01_intensity_11, "Martian Dust Analogue G11", "orange", AEMA01_11_peaks),
+    ("AEMA02_11", AEMA02_angle_11, AEMA02_intensity_11, "Jezero Dust Analogue G11", "purple", AEMA02_11_peaks),
+    ("AEFE01", AEFE01_angle, AEFE01_intensity, "Hematite",  "red", AEFE01_peaks),
+    ("AEFE02", AEFE02_angle, AEFE02_intensity, "Magnetite", "black", AEFE02_peaks)
 ]
 
+# Individual Plots
+for item in to_plot:
+    plt.figure(figsize=(10, 6))
+    plt.plot(item[1], item[2], label=item[3], color=item[4])
+    # Mark peaks
+    peakColour = "brown"
+    plt.scatter(*item[5], color=peakColour, marker='x')
+    for wn, tr in zip(*item[5]):
+        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
 
-plt.plot(to_plot[0][1], to_plot[0][2], label=to_plot[0][3], color=to_plot[0][4])
-plt.plot(to_plot[1][1], to_plot[1][2], label=to_plot[1][3], color=to_plot[1][4])
-plt.plot(to_plot[2][1], to_plot[2][2], label=to_plot[2][3], color=to_plot[2][4])
-plt.xlabel('Angle (°)')
+    plt.xlabel(f'2{chr(977)} (°)')
+    plt.ylabel('Intensity')
+    plt.title(f"XRD Spectrum of {item[3]} with peaks")
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"XRDPlots\{item[0]}_WP.png", dpi=400)
+    plt.close()
+
+# Plot all spectra together
+plt.figure(figsize=(10, 6))
+plt.plot(AEMA01_angle, AEMA01_intensity, label="Global Martian Dust Analogue", color="blue")
+plt.plot(AEFE01_angle, AEFE01_intensity, label="Hematite", color="red")
+plt.plot(AEFE02_angle, AEFE02_intensity, label="Magnetite", color="black")
+peakColour = "black"
+plt.scatter(*AEMA01_peaks, color=peakColour, marker='x')
+plt.scatter(*AEFE01_peaks, color=peakColour, marker='x')
+plt.scatter(*AEFE02_peaks, color=peakColour, marker='x')
+for wn, tr in zip(*AEMA01_peaks):
+    plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+for wn, tr in zip(*AEFE01_peaks):
+    plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+for wn, tr in zip(*AEFE02_peaks):
+    plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+plt.xlabel(f'2{chr(977)} (°)')
 plt.ylabel('Intensity')
-plt.title(f"XRD Spectrum of Global Martian Dust Analogue and References")
+plt.title("XRD Spectra of Martian Dust Analogue and References with peaks")
 plt.legend()
 plt.grid()
 plt.tight_layout()
-plt.savefig(f"XRDPlots\FullXRD.png")
+plt.savefig("XRDPlots\All_Spectra_WP.png", dpi=400)
