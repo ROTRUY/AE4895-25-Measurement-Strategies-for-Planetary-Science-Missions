@@ -56,7 +56,7 @@ for item in to_plot:
     for wn, tr in zip(*item[5]):
         plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
 
-    plt.xlabel('Angle (°)')
+    plt.xlabel(f'2{chr(977)} (°)')
     plt.ylabel('Intensity')
     plt.title(f"XRD Spectrum of {item[3]} with peaks")
     plt.legend()
@@ -80,7 +80,7 @@ for wn, tr in zip(*AEFE01_peaks):
     plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
 for wn, tr in zip(*AEFE02_peaks):
     plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
-plt.xlabel('Angle (°)')
+plt.xlabel(f'2{chr(977)} (°)')
 plt.ylabel('Intensity')
 plt.title("XRD Spectra of Martian Dust Analogue and References with peaks")
 plt.legend()
