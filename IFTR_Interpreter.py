@@ -34,24 +34,24 @@ def detect_peaks(wavenumber, transmittance, prominence=1.5):
 # -----------------------------
 # Load spectra
 # -----------------------------
-AEMA01 = load_spectrum("AEMA01_V2.csv")
-AEMA02 = load_spectrum("AEMA02.csv")
+AEMA01 = load_spectrum("FTIRTxt/AEMA01_V2.csv")
+AEMA02 = load_spectrum("FTIRTxt/AEMA02.csv")
 
 references = {
     "Hematite": {
-        "data": load_spectrum("AEFE01.csv"),
+        "data": load_spectrum("FTIRTxt/AEFE01.csv"),
         "color": "red"
     },
     "Magnetite": {
-        "data": load_spectrum("AEFE02.csv"),
+        "data": load_spectrum("FTIRTxt/AEFE02.csv"),
         "color": "black"
     },
     "Olivine": {
-        "data": load_spectrum("AEOL01_V2.csv"),
+        "data": load_spectrum("FTIRTxt/AEOL01_V2.csv"),
         "color": "green"
     },
     "Quartz": {
-        "data": load_spectrum("AEQ01.csv"),
+        "data": load_spectrum("FTIRTxt/AEQ01.csv"),
         "color": "pink"
     },
 }
@@ -65,7 +65,7 @@ analogue_peaks_2 = detect_peaks(*AEMA02)
 
 
 # =============================
-# 1️⃣ SUBPLOTS WITH PEAK LABELS
+# SUBPLOTS WITH PEAK LABELS
 # =============================
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 axes = axes.flatten()
@@ -110,13 +110,13 @@ for ax, (ref_name, ref_info) in zip(axes, references.items()):
     ax.grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("FTIR_per_sample_peaks_comparison.png", dpi=300)
+plt.savefig("FTIRPlots/FTIR_per_sample_peaks_comparison.png", dpi=300)
 plt.show()
 plt.close()
 
 
 # =============================
-# 2️⃣ FULL COMPARISON PLOT (NO PEAKS)
+# FULL COMPARISON PLOT (NO PEAKS)
 # =============================
 plt.figure(figsize=(10, 6))
 
@@ -137,5 +137,5 @@ plt.legend()
 plt.grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("FTIR_comparison.png", dpi=300)
+plt.savefig("FTIRPlots/FTIR_comparison.png", dpi=300)
 plt.show()
