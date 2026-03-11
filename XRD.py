@@ -23,18 +23,25 @@ def detect_peaks(angle, intensity, prominence=200, distance=1):
     return angle[peaks], intensity[peaks]
 
 # Read data
-AEMA01_angle, AEMA01_intensity = read_spectrum(r"XRD\\mars_analogue.txt")    # Martian dust analogue
-AEFE01_angle, AEFE01_intensity = read_spectrum(r"XRD\\aefe01.txt")  # Hematite reference
-AEFE02_angle, AEFE02_intensity = read_spectrum(r"XRD\\aefe02.txt")  # Magnetite reference
+AEMA01_angle, AEMA01_intensity = read_spectrum(r"XRD\\AEMA01.txt")  # Martian dust analogue
+AEFE01_angle, AEFE01_intensity = read_spectrum(r"XRD\\AEFE01.txt")  # Hematite reference
+AEFE02_angle, AEFE02_intensity = read_spectrum(r"XRD\\AEFE02.txt")  # Magnetite reference
+
+AEMA01_angle_11, AEMA01_intensity_11 = read_spectrum(r"XRD\\AEMA01_11.txt")  # Martian dust analogue of G11, for cross-checking
+AEMA02_angle_11, AEMA02_intensity_11 = read_spectrum(r"XRD\\AEMA02_11.txt")  # Jezero dust analogue of G11, for cross-checking
 
 # Get peaks
-AEMA01_peaks = detect_peaks(AEMA01_angle, AEMA01_intensity, 45, 1)
+AEMA01_peaks = detect_peaks(AEMA01_angle, AEMA01_intensity, 50, 1)
+AEMA01_11_peaks = detect_peaks(AEMA01_angle_11, AEMA01_intensity_11, 200, 1)
+AEMA02_11_peaks = detect_peaks(AEMA02_angle_11, AEMA02_intensity_11, 30, 1)
 AEFE01_peaks = detect_peaks(AEFE01_angle, AEFE01_intensity, 200, 1)
 AEFE02_peaks = detect_peaks(AEFE02_angle, AEFE02_intensity, 200, 1)
 
 # Define the spectra data and metadata for plotting
 to_plot = [
     ("AEMA01", AEMA01_angle, AEMA01_intensity, "Global Martian Dust Analogue", "blue", AEMA01_peaks),
+    ("AEMA01_11", AEMA01_angle_11, AEMA01_intensity_11, "Martian Dust Analogue G11", "orange", AEMA01_11_peaks),
+    ("AEMA02_11", AEMA02_angle_11, AEMA02_intensity_11, "Jezero Dust Analogue G11", "purple", AEMA02_11_peaks),
     ("AEFE01", AEFE01_angle, AEFE01_intensity, "Hematite",  "red", AEFE01_peaks),
     ("AEFE02", AEFE02_angle, AEFE02_intensity, "Magnetite", "black", AEFE02_peaks)
 ]
@@ -55,7 +62,7 @@ for item in to_plot:
     plt.legend()
     plt.grid()
     plt.tight_layout()
-    plt.savefig(f"XRDPlots\{item[0]}_with_peaks.png", dpi=400)
+    plt.savefig(f"XRDPlots\{item[0]}_WP.png", dpi=400)
     plt.close()
 
 # Plot all spectra together
@@ -79,4 +86,4 @@ plt.title("XRD Spectra of Martian Dust Analogue and References with peaks")
 plt.legend()
 plt.grid()
 plt.tight_layout()
-plt.savefig("XRDPlots\All_Spectra_with_peaks.png", dpi=400)
+plt.savefig("XRDPlots\All_Spectra_WP.png", dpi=400)
