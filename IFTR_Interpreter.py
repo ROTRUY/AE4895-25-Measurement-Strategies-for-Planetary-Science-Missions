@@ -25,7 +25,7 @@ def load_spectrum(filename):
 # -----------------------------
 # Peak detection (absorption bands)
 # -----------------------------
-def detect_peaks(wavenumber, transmittance, prominence=1.5):
+def detect_peaks(wavenumber, transmittance, prominence=4):
     inverted = -transmittance
     peaks, properties = find_peaks(inverted, prominence=prominence)
     return wavenumber[peaks], transmittance[peaks]
@@ -65,7 +65,7 @@ analogue_peaks_2 = detect_peaks(*AEMA02)
 
 
 # =============================
-# SUBPLOTS WITH PEAK LABELS
+# SUBPLOTS WITH PEAK LABELS FOR ONLY ANALOGUE 1
 # =============================
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 axes = axes.flatten()
@@ -77,16 +77,14 @@ for ax, (ref_name, ref_info) in zip(axes, references.items()):
 
     ref_peaks = detect_peaks(wn_ref, tr_ref)
 
-    # Plot analogue samples
-    ax.plot(*AEMA01, linestyle="--", color="blue", label="AEMA01")
-    ax.plot(*AEMA02, linestyle="--", color="orange", label="AEMA02")
+    # Plot analogue sample
+    ax.plot(*AEMA01, linestyle="--", color="blue", label="Mars Global Analogue")
 
     # Plot reference sample
     ax.plot(wn_ref, tr_ref, linestyle="-", color=ref_color, label=ref_name)
 
     # Mark analogue peaks
     ax.scatter(*analogue_peaks_1, color="blue")
-    ax.scatter(*analogue_peaks_2, color="orange")
 
     # Mark reference peaks
     ax.scatter(*ref_peaks, color=ref_color)
@@ -95,14 +93,11 @@ for ax, (ref_name, ref_info) in zip(axes, references.items()):
     for wn, tr in zip(*analogue_peaks_1):
         ax.text(wn, tr, f"{wn:.0f}", fontsize=8, color="blue")
 
-    for wn, tr in zip(*analogue_peaks_2):
-        ax.text(wn, tr, f"{wn:.0f}", fontsize=8, color="orange")
-
     for wn, tr in zip(*ref_peaks):
         ax.text(wn, tr, f"{wn:.0f}", fontsize=8, color=ref_color)
 
     # Formatting
-    ax.set_title(f"Analogue vs {ref_name}")
+    ax.set_title(f"Mars Analogue vs {ref_name}")
     ax.set_xlabel("Wavenumber (cm$^{-1}$)")
     ax.set_ylabel("Transmittance (%)")
     ax.invert_xaxis()
@@ -110,7 +105,52 @@ for ax, (ref_name, ref_info) in zip(axes, references.items()):
     ax.grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("FTIRPlots/FTIR_per_sample_peaks_comparison.png", dpi=300)
+plt.savefig("FTIRPlots/FTIR_MARS_per_sample_peaks_comparison.png", dpi=300)
+plt.show()
+plt.close()
+
+# =============================
+# SUBPLOTS WITH PEAK LABELS FOR ONLY ANALOGUE 1
+# =============================
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+axes = axes.flatten()
+
+for ax, (ref_name, ref_info) in zip(axes, references.items()):
+
+    wn_ref, tr_ref = ref_info["data"]
+    ref_color = ref_info["color"]
+
+    ref_peaks = detect_peaks(wn_ref, tr_ref)
+
+    # Plot analogue sample
+    ax.plot(*AEMA02, linestyle="--", color="orange", label="JEZERO Dust Analogue")
+
+    # Plot reference sample
+    ax.plot(wn_ref, tr_ref, linestyle="-", color=ref_color, label=ref_name)
+
+    # Mark analogue peaks
+    ax.scatter(*analogue_peaks_2, color="orange")
+
+    # Mark reference peaks
+    ax.scatter(*ref_peaks, color=ref_color)
+
+    # ---- Add peak labels ----
+    for wn, tr in zip(*analogue_peaks_2):
+        ax.text(wn, tr, f"{wn:.0f}", fontsize=8, color="orange")
+
+    for wn, tr in zip(*ref_peaks):
+        ax.text(wn, tr, f"{wn:.0f}", fontsize=8, color=ref_color)
+
+    # Formatting
+    ax.set_title(f"JEZERO Analogue vs {ref_name}")
+    ax.set_xlabel("Wavenumber (cm$^{-1}$)")
+    ax.set_ylabel("Transmittance (%)")
+    ax.invert_xaxis()
+    ax.legend()
+    ax.grid(alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("FTIRPlots/FTIR_JEZERO_per_sample_peaks_comparison.png", dpi=300)
 plt.show()
 plt.close()
 
@@ -138,4 +178,3 @@ plt.grid(alpha=0.3)
 
 plt.tight_layout()
 plt.savefig("FTIRPlots/FTIR_comparison.png", dpi=300)
-plt.show()
