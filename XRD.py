@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks
-from scipy.signal import savgol_filter
+from scipy.signal import find_peaks, savgol_filter
 from pybaselines import Baseline
 
 def read_spectrum(filepath: str):

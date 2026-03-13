@@ -1,188 +1,348 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, savgol_filter
+from pybaselines import Baseline
 
-def read_spectrum(filepath: str):
-    """
-    Reads Raman spectroscopy data from a text file.
-    
-    :param filepath: Path to the text file containing the spectrum data.
-    :type filepath: str
-    :return: Tuple of wave and intensity arrays.
-    """
+def read_spectrum(filepath: str, min_wave:float=None, max_wave:float=None):
     data = np.loadtxt(filepath, comments='#')
-    
+
     wave = data[:, 0]
     intensity = data[:, 1]
-    
+
+    if min_wave is not None or max_wave is not None:
+        mask = np.ones_like(wave, dtype=bool)
+
+        if min_wave is not None:
+            mask &= wave >= min_wave
+        if max_wave is not None:
+            mask &= wave <= max_wave
+
+        wave = wave[mask]
+        intensity = intensity[mask]
+
     return wave, intensity
 
-def detect_peaks(angle, intensity, prominence=200, distance=1):
+def read_spectrum_csv(filepath: str, min_wave:float=None, max_wave:float=None):
+    data = np.loadtxt(filepath, delimiter=",")
+
+    wave = data[:, 0]
+    intensity = data[:, 1]
+
+    if min_wave is not None or max_wave is not None:
+        mask = np.ones_like(wave, dtype=bool)
+
+        if min_wave is not None:
+            mask &= wave >= min_wave
+        if max_wave is not None:
+            mask &= wave <= max_wave
+
+        wave = wave[mask]
+        intensity = intensity[mask]
+
+    return wave, intensity
+
+def detect_peaks(wave, intensity, prominence=200, distance=1):
     peaks, _ = find_peaks(intensity, prominence=prominence, distance=distance)
 
-    return angle[peaks], intensity[peaks]
+    return wave[peaks], intensity[peaks]
 
-AEMA01_wave, AEMA01_intensity = read_spectrum(r"RamanTxt\sample1.txt")    # Martian dust analogue
-AEMA02_wave, AEMA02_intensity = read_spectrum(r"RamanTxt\sample2.txt")    # Jezero dust analogue
-AEFE01_wave, AEFE01_intensity = read_spectrum(r"RamanTxt\sample3v2.txt")  # Hematite reference
-AEFE02_wave, AEFE02_intensity = read_spectrum(r"RamanTxt\sample4v2.txt")  # Magnetite reference
-AEOL01_wave, AEOL01_intensity = read_spectrum(r"RamanTxt\sample5v2.txt")  # Olivine reference
-AEQ01_wave,  AEQ01_intensity  = read_spectrum(r"RamanTxt\sample6v2.txt")  # Quartz reference
+def baseline_correct(wave, intensity):
+    baseline_fitter = Baseline(x_data=wave)
+    baseline, params = baseline_fitter.asls(intensity, lam=1e7)
+    corrected = intensity - baseline
+    return corrected
 
-# Get peaks
-AEMA01_peaks = detect_peaks(AEMA01_wave, AEMA01_intensity, 450, 1)
-AEMA02_peaks = detect_peaks(AEMA02_wave, AEMA02_intensity, 1300, 1)
-AEFE01_peaks = detect_peaks(AEFE01_wave, AEFE01_intensity, 2000, 1)
-AEFE02_peaks = detect_peaks(AEFE02_wave, AEFE02_intensity, 2000, 1)
-AEOL01_peaks = detect_peaks(AEOL01_wave, AEOL01_intensity, 600, 1)
-AEQ01_peaks  = detect_peaks(AEQ01_wave,  AEQ01_intensity,  500, 1)
+def normalize(arr):
+    return arr / np.max(arr)
 
-def plot_spectra(x, y, peaks, title: str, labels=None, colours=None, linestyles=None, show: bool = True, save_path: str = None):
-    """
-    Plots one or multiple Raman spectra.
+### READ SPECTRA, SMOOTH AND NORMALIZE ###
+# Analogues
+AEMA01_wave, AEMA01_intensity = read_spectrum(r"RamanTxt\sample1.txt", 100, 1500)   # Martian dust analogue
+AEMA01_intensity = baseline_correct(AEMA01_wave, AEMA01_intensity)                  # Baseline correction
+AEMA01_intensity = savgol_filter(AEMA01_intensity, 11, 3)                           # Smooth the spectrum using Savitzky-Golay filter
+AEMA01_intensity = normalize(AEMA01_intensity)                                      # Normalize intensity
 
-    :param x: List of wave arrays (or a single wave array).
-    :type x: list of np.ndarray or np.ndarray
-    :param y: List of intensity arrays (or a single intensity array).
-    :type y: list of np.ndarray or np.ndarray
-    :param title: Title of the plot.
-    :type title: str
-    :param labels: Optional list of labels for the legend.
-    :type labels: list of str or str or None
-    :param colors: Optional list of colors for the spectra.
-    :type colors: list of str or str or None
-    :param linestyles: Optional list of line styles for the spectra.
-    :type linestyles: list of str or str or None
-    :param show: Whether to display the plot.
-    :type show: bool
-    :param save_path: Optional path to save the plot.
-    :type save_path: str or None
-    """
+AEMA02_wave, AEMA02_intensity = read_spectrum(r"RamanTxt\sample2.txt", 100, 1500)   # Jezero dust analogue
+AEMA02_intensity = baseline_correct(AEMA02_wave, AEMA02_intensity)                  # Baseline correction
+AEMA02_intensity = savgol_filter(AEMA02_intensity, 11, 3)                           # Smooth the spectrum using Savitzky-Golay filter
+AEMA02_intensity = normalize(AEMA02_intensity)                                      # Normalize intensity
 
-    # Normalize x and y to list-of-arrays
-    if isinstance(x, (np.ndarray, list, tuple)) and not isinstance(x[0], (np.ndarray, list, tuple)):
-        x = [x]
-        y = [y]
+# References
+AEFE01_wave, AEFE01_intensity = read_spectrum(r"RamanTxt\sample3v2.txt", 275, 500)  # Hematite reference
+AEFE01_intensity = baseline_correct(AEFE01_wave, AEFE01_intensity)                  # Baseline correction
+AEFE01_intensity = savgol_filter(AEFE01_intensity, 11, 3)                           # Smooth the spectrum using Savitzky-Golay filter
+AEFE01_intensity = normalize(AEFE01_intensity)                                      # Normalize intensity
 
-    n = len(x)
+AEFE02_wave, AEFE02_intensity = read_spectrum(r"RamanTxt\sample4v2.txt", 500, 800)  # Magnetite reference
+AEFE02_intensity = baseline_correct(AEFE02_wave, AEFE02_intensity)                  # Baseline correction
+AEFE02_intensity = savgol_filter(AEFE02_intensity, 11, 3)                           # Smooth the spectrum using Savitzky-Golay filter
+AEFE02_intensity = normalize(AEFE02_intensity)                                      # Normalize intensity
 
-    if len(y) != n:
-        raise ValueError("x and y must contain the same number of spectra.")
-    
-    # Normalize peaks to list-of-tuples
-    if isinstance(peaks, tuple):
-        peaks = [peaks]
+AEOL01_wave, AEOL01_intensity = read_spectrum(r"RamanTxt\sample5v2.txt", 800, 1000)  # Olivine reference
+AEOL01_intensity = baseline_correct(AEOL01_wave, AEOL01_intensity)                   # Baseline correction
+AEOL01_intensity = savgol_filter(AEOL01_intensity, 11, 3)                            # Smooth the spectrum using Savitzky-Golay filter
+AEOL01_intensity = normalize(AEOL01_intensity)                                       # Normalize intensity
 
-    # Helper to normalize optional inputs
-    def normalize(param, name):
-        if param is None:
-            return [None] * n
-        if isinstance(param, str):
-            return [param]
-        if len(param) != n:
-            raise ValueError(f"{name} must match number of spectra.")
-        return param
+AEQ01_wave,  AEQ01_intensity  = read_spectrum(r"RamanTxt\sample6v2.txt", 180, 500)  # Quartz reference
+AEQ01_intensity = baseline_correct(AEQ01_wave, AEQ01_intensity)                     # Baseline correction
+AEQ01_intensity = savgol_filter(AEQ01_intensity, 11, 3)                             # Smooth the spectrum using Savitzky-Golay filter
+AEQ01_intensity = normalize(AEQ01_intensity)                                        # Normalize intensity
 
-    labels = normalize(labels, "labels")
-    colours = normalize(colours, "colours")
-    linestyles = normalize(linestyles, "linestyles")
+# RUFF References
+AEFE01_RUFF_wave, AEFE01_RUFF_intensity = read_spectrum_csv(r"RamanTxt\Hematite_RUFF.csv", 275, 500)  # Hematite RUFF reference
+AEFE01_RUFF_intensity = baseline_correct(AEFE01_RUFF_wave, AEFE01_RUFF_intensity)                     # Baseline correction
+AEFE01_RUFF_intensity = savgol_filter(AEFE01_RUFF_intensity, 11, 3)                                   # Smooth the spectrum using Savitzky-Golay filter
+AEFE01_RUFF_intensity = normalize(AEFE01_RUFF_intensity)                                              # Normalize intensity
 
-    # Plotting
-    plt.figure(figsize=(10, 6))
+AEFE02_RUFF_wave, AEFE02_RUFF_intensity = read_spectrum_csv(r"RamanTxt\Magnetite_RUFF.csv", 500, 800)  # Magnetite RUFF reference
+AEFE02_RUFF_intensity = baseline_correct(AEFE02_RUFF_wave, AEFE02_RUFF_intensity)                      # Baseline correction
+AEFE02_RUFF_intensity = savgol_filter(AEFE02_RUFF_intensity, 11, 3)                                    # Smooth the spectrum using Savitzky-Golay filter
+AEFE02_RUFF_intensity = normalize(AEFE02_RUFF_intensity)                                               # Normalize intensity
 
-    for xi, yi, pi, label, colour, ls in zip(x, y, peaks, labels, colours, linestyles):
-        plt.plot(xi, yi, label=label, color=colour, linestyle=ls)
+AEOL01_RUFF_wave, AEOL01_RUFF_intensity = read_spectrum_csv(r"RamanTxt\Olivine_RUFF.csv", 800, 1000)   # Olivine RUFF reference
+AEOL01_RUFF_intensity = baseline_correct(AEOL01_RUFF_wave, AEOL01_RUFF_intensity)                      # Baseline correction
+AEOL01_RUFF_intensity = savgol_filter(AEOL01_RUFF_intensity, 11, 3)                                    # Smooth the spectrum using Savitzky-Golay filter
+AEOL01_RUFF_intensity = normalize(AEOL01_RUFF_intensity)                                               # Normalize intensity
 
-        peak_x, peak_y = pi
+AEQ01_RUFF_wave, AEQ01_RUFF_intensity = read_spectrum_csv(r"RamanTxt\Quartz_RUFF.csv", 180, 500)     # Quartz RUFF reference
+AEQ01_RUFF_intensity = baseline_correct(AEQ01_RUFF_wave, AEQ01_RUFF_intensity)                       # Baseline correction
+AEQ01_RUFF_intensity = savgol_filter(AEQ01_RUFF_intensity, 11, 3)                                    # Smooth the spectrum using Savitzky-Golay filter
+AEQ01_RUFF_intensity = normalize(AEQ01_RUFF_intensity)                                               # Normalize intensity
 
-        plt.scatter(peak_x, peak_y,
-                    color="black",
-                    marker='x',
-                    zorder=3)
+### GET PEAKS ###
+# Analogues
+AEMA01_peaks = detect_peaks(AEMA01_wave, AEMA01_intensity, 0.1)
+AEMA02_peaks = detect_peaks(AEMA02_wave, AEMA02_intensity, 0.1)
 
-        # Optional peak labels
-        for px, py in zip(peak_x, peak_y):
-            plt.text(px, py,
-                    f"{px:.0f}",
-                    fontsize=9,
-                    color="black",
-                    ha="center",
-                    va="bottom")
+# References
+AEFE01_peaks = detect_peaks(AEFE01_wave, AEFE01_intensity, 0.1)
+AEFE02_peaks = detect_peaks(AEFE02_wave, AEFE02_intensity, 0.1)
+AEOL01_peaks = detect_peaks(AEOL01_wave, AEOL01_intensity, 0.001)
+AEQ01_peaks  = detect_peaks(AEQ01_wave,  AEQ01_intensity,  0.01)
 
-    plt.xlabel('Wave Number (cm⁻¹)')
-    plt.ylabel('Intensity')
-    plt.title(title)
+# RUFF References
+AEFE01_RUFF_peaks = detect_peaks(AEFE01_RUFF_wave, AEFE01_RUFF_intensity, 0.1)
+AEFE02_RUFF_peaks = detect_peaks(AEFE02_RUFF_wave, AEFE02_RUFF_intensity, 0.1)
+AEOL01_RUFF_peaks = detect_peaks(AEOL01_RUFF_wave, AEOL01_RUFF_intensity, 0.001)
+AEQ01_RUFF_peaks = detect_peaks(AEQ01_RUFF_wave, AEQ01_RUFF_intensity, 0.01)
 
-    if any(label is not None for label in labels):
-        plt.legend()
-
-    plt.grid()
-    plt.tight_layout()
-
-    if save_path:
-        plt.savefig(save_path, dpi=400, bbox_inches='tight')
-
-    if show:
-        plt.show()
-
-# Define the spectra data and metadata for plotting
+### DEFINE SPECTRA FOR PLOTTING ###
 analogues = [
-    ("AEMA01", AEMA01_wave, AEMA01_intensity, "Martian Dust Analogue", "blue", AEMA01_peaks),
-    ("AEMA02", AEMA02_wave, AEMA02_intensity, "Jezero Dust Analogue",  "orange", AEMA02_peaks),
+    ("AEMA01", AEMA01_wave, AEMA01_intensity, "Martian Dust Analogue (AEMA01)", "blue", AEMA01_peaks),
+    ("AEMA02", AEMA02_wave, AEMA02_intensity, "Jezero Dust Analogue (AEMA02)",  "orange", AEMA02_peaks),
 ]
 
 references = [
-    ("AEFE01", AEFE01_wave, AEFE01_intensity, "Hematite",  "red", AEFE01_peaks),
-    ("AEFE02", AEFE02_wave, AEFE02_intensity, "Magnetite", "black", AEFE02_peaks),
-    ("AEOL01", AEOL01_wave, AEOL01_intensity, "Olivine",   "green", AEOL01_peaks),
-    ("AEQ01",  AEQ01_wave,  AEQ01_intensity,  "Quartz",    "pink", AEQ01_peaks),
+    ("AEFE01", AEFE01_wave, AEFE01_intensity, "Hematite (AEFE01)",  "red", AEFE01_peaks),
+    ("AEFE02", AEFE02_wave, AEFE02_intensity, "Magnetite (AEFE02)", "black", AEFE02_peaks),
+    ("AEOL01", AEOL01_wave, AEOL01_intensity, "Olivine (AEOL01)",   "green", AEOL01_peaks),
+    ("AEQ01",  AEQ01_wave,  AEQ01_intensity,  "Quartz (AEQ01)",    "pink", AEQ01_peaks),
 ]
 
+### PLOTTING ###
+# New individual plots of analogues
+for item in analogues:
+    plt.figure(figsize=(14, 6))
+    plt.plot(item[1], item[2], label=item[3], color=item[4])
+    # Mark peaks
+    peakColour = "brown"
+    plt.scatter(*item[5], color=peakColour, marker='x')
+    for wn, tr in zip(*item[5]):
+        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+    plt.xlabel('Wave Number (cm⁻¹)')
+    plt.ylabel('Relative Intensity (counts)')
+    plt.title(f"Raman Spectrum of {item[3]} with peaks")
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"RamanPlots\\{item[0]}_WP_N.png", dpi=500)
+    plt.close()
 
-# Individual spectrum plots
-plot_spectra(AEMA01_wave, AEMA01_intensity, AEMA01_peaks, title="Raman Spectrum of AEMA01 (Martian Dust Analogue) with peaks", labels="AEMA01 (Martian Dust Analogue)", colours="blue", show=False, save_path=r"RamanPlots\AEMA01_WP.png")
-plot_spectra(AEMA02_wave, AEMA02_intensity, AEMA02_peaks, title="Raman Spectrum of AEMA02 (Jezero Dust Analogue) with peaks", labels="AEMA02 (Jezero Dust Analogue)", colours="orange", show=False, save_path=r"RamanPlots\AEMA02_WP.png")
-plot_spectra(AEFE01_wave, AEFE01_intensity, AEFE01_peaks, title="Raman Spectrum of AEFE01 (Hematite) with peaks", labels="AEFE01 (Hematite)", colours="red", show=False, save_path=r"RamanPlots\AEFE01_WP.png")
-plot_spectra(AEFE02_wave, AEFE02_intensity, AEFE02_peaks, title="Raman Spectrum of AEFE02 (Magnetite) with peaks", labels="AEFE02 (Magnetite)", colours="black", show=False, save_path=r"RamanPlots\AEFE02_WP.png")
-plot_spectra(AEOL01_wave, AEOL01_intensity, AEOL01_peaks, title="Raman Spectrum of AEOL01 (Olivine) with peaks", labels="AEOL01 (Olivine)", colours="green", show=False, save_path=r"RamanPlots\AEOL01_WP.png")
-plot_spectra(AEQ01_wave, AEQ01_intensity, AEQ01_peaks, title="Raman Spectrum of AEQ01 (Quartz) with peaks", labels="AEQ01 (Quartz)", colours="pink", show=False, save_path=r"RamanPlots\AEQ01_WP.png")
-"""
-# Analogue vs reference comparison plots
-for a_code, a_wave, a_int, a_name, a_colour in analogues:
-    for r_code, r_wave, r_int, r_name, r_colour in references:
+# New individual plots of references
+for item in references:
+    plt.figure(figsize=(14, 6))
+    plt.plot(item[1], item[2], label=item[3], color=item[4])
+    # Mark peaks
+    peakColour = "brown"
+    plt.scatter(*item[5], color=peakColour, marker='x')
+    for wn, tr in zip(*item[5]):
+        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+    plt.xlabel('Wave Number (cm⁻¹)')
+    plt.ylabel('Relative Intensity (counts)')
+    plt.title(f"Raman Spectrum of {item[3]} with peaks")
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"RamanPlots\\{item[0]}_WP_N.png", dpi=500)
+    plt.close()
 
-        plot_spectra(
-            [a_wave, r_wave],
-            [a_int, r_int],
-            title=f"{a_code} vs {r_name}",
-            labels=[f"{a_name} ({a_code})", f"{r_name} ({r_code})"],
-            colours=[a_colour, r_colour],
-            save_path=rf"RamanPlots\{a_code}_vs_{r_name}.png"
-        )
-"""
-# Analogues together with all references
-for a_code, a_wave, a_int, a_name, a_colour, a_peaks in analogues:
+# Stacked Hematite + RUFF Hematite
+fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
 
-    x_data = [a_wave]
-    y_data = [a_int]
-    labels = [f"{a_name} ({a_code})"]
-    colours = [a_colour]
-    peaks = [a_peaks]
+spectra = [
+    (AEFE01_wave, AEFE01_intensity, AEFE01_peaks, "Hematite (AEFE01)", "red"),
+    (AEFE01_RUFF_wave, AEFE01_RUFF_intensity, AEFE01_RUFF_peaks, " RUFF Hematite", "red"),
+]
 
-    for r_code, r_wave, r_int, r_name, r_colour, r_peaks in references:
-        x_data.append(r_wave)
-        y_data.append(r_int)
-        labels.append(f"{r_name} ({r_code})")
-        colours.append(r_colour)
-        peaks.append(r_peaks)
+for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
 
-    plot_spectra(
-        x_data,
-        y_data,
-        peaks,
-        title=f"{a_code} vs Reference Minerals with peaks",
-        labels=labels,
-        colours=colours,
-        show=False,
-        save_path=rf"RamanPlots\{a_code}_vs_All_References_WP.png"
-    )
+    ax.plot(wave, intensity, color=color, label=label)
+    ax.scatter(*peaks, color="brown", marker="x")
+
+    for wn, tr in zip(*peaks):
+        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+
+    ax.set_ylabel("Relative Intensity (counts)")
+    ax.legend()
+    ax.grid()
+
+axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+
+plt.suptitle("Raman Hematite Spectra Comparison")
+plt.tight_layout()
+plt.savefig("RamanPlots\\Stacked_Spectra_Hematite.png", dpi=500)
+plt.close()
+
+# Stacked Magnetite + RUFF Magnetite
+fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+
+spectra = [
+    (AEFE02_wave, AEFE02_intensity, AEFE02_peaks, "Magnetite (AEFE02)", "black"),
+    (AEFE02_RUFF_wave, AEFE02_RUFF_intensity, AEFE02_RUFF_peaks, " RUFF Magnetite", "black"),
+]
+
+for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+
+    ax.plot(wave, intensity, color=color, label=label)
+    ax.scatter(*peaks, color="brown", marker="x")
+
+    for wn, tr in zip(*peaks):
+        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+
+    ax.set_ylabel("Relative Intensity (counts)")
+    ax.legend()
+    ax.grid()
+
+axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+
+plt.suptitle("Raman Magnetite Spectra Comparison")
+plt.tight_layout()
+plt.savefig("RamanPlots\\Stacked_Spectra_Magnetite.png", dpi=500)
+plt.close()
+
+# Stacked Olivine + RUFF Olivine
+fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+
+spectra = [
+    (AEOL01_wave, AEOL01_intensity, AEOL01_peaks, "Olivine (AEOL01)", "green"),
+    (AEOL01_RUFF_wave, AEOL01_RUFF_intensity, AEOL01_RUFF_peaks, " RUFF Olivine", "green"),
+]
+
+for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+
+    ax.plot(wave, intensity, color=color, label=label)
+    ax.scatter(*peaks, color="brown", marker="x")
+
+    for wn, tr in zip(*peaks):
+        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+
+    ax.set_ylabel("Relative Intensity (counts)")
+    ax.legend()
+    ax.grid()
+
+axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+
+plt.suptitle("Raman Olivine Spectra Comparison")
+plt.tight_layout()
+plt.savefig("RamanPlots\\Stacked_Spectra_Olivine.png", dpi=500)
+plt.close()
+
+# Stacked Quartz + RUFF Quartz
+fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+
+spectra = [
+    (AEQ01_wave, AEQ01_intensity, AEQ01_peaks, "Quartz (AEQ01)", "blue"),
+    (AEQ01_RUFF_wave, AEQ01_RUFF_intensity, AEQ01_RUFF_peaks, " RUFF Quartz", "blue"),
+]
+
+for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+
+    ax.plot(wave, intensity, color=color, label=label)
+    ax.scatter(*peaks, color="brown", marker="x")
+
+    for wn, tr in zip(*peaks):
+        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+
+    ax.set_ylabel("Relative Intensity (counts)")
+    ax.legend()
+    ax.grid()
+
+axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+
+plt.suptitle("Raman Quartz Spectra Comparison")
+plt.tight_layout()
+plt.savefig("RamanPlots\\Stacked_Spectra_Quartz.png", dpi=500)
+plt.close()
+
+# Stacked Analogues vs References
+for analogue in analogues:
+
+    fig, axes = plt.subplots(5, 1, figsize=(30, 15), sharex=True)
+
+    spectra = [
+        analogue,
+        references[0],
+        references[1],
+        references[2],
+        references[3],
+    ]
+
+    for ax, (name, wave, intensity, label, color, peaks) in zip(axes, spectra):
+
+        ax.plot(wave, intensity, color=color, label=label)
+        ax.scatter(*peaks, color="brown", marker="x")
+
+        for wn, tr in zip(*peaks):
+            ax.text(wn, tr, f"{wn:.1f}", fontsize=9)
+
+        ax.set_ylabel("Relative Intensity (counts)")
+        ax.legend()
+        ax.grid()
+
+    axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+
+    plt.suptitle(f"Raman Analogue vs References Comparison ({analogue[3]})")
+    plt.tight_layout()
+
+    plt.savefig(f"RamanPlots\\Stacked_{analogue[0]}_vs_References.png", dpi=500)
+    plt.close()
+
+# Analogue and References in same plots
+for analogue in analogues:
+
+    plt.figure(figsize=(14,8))
+
+    offset = 0
+    offset_step = 0.6
+
+    spectra = [analogue] + references
+
+    for name, wave, intensity, label, color, peaks in spectra:
+
+        plt.plot(wave, intensity + offset, label=label, color=color)
+
+        # plot peaks
+        peak_wave, peak_int = peaks
+        plt.scatter(peak_wave, peak_int + offset, color="brown", marker="x", s=40)
+
+        offset += offset_step
+
+    plt.xlabel("Wave Number (cm⁻¹)")
+    plt.ylabel("Relative Intensity (offset)")
+    plt.title(f"Raman Comparison: {analogue[3]} vs References")
+    plt.legend()
+    plt.grid()
+
+    plt.tight_layout()
+    plt.savefig(f"RamanPlots\\Overlay_{analogue[0]}_vs_References.png", dpi=500)
+    plt.close()
