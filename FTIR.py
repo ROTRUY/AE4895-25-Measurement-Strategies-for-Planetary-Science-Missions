@@ -161,8 +161,8 @@ plt.close()
 plt.figure(figsize=(10, 6))
 
 # Analogue samples (dashed)
-plt.plot(*AEMA01, linestyle="--", color="blue", label="AEMA01")
-plt.plot(*AEMA02, linestyle="--", color="orange", label="AEMA02")
+plt.plot(*AEMA01, linestyle="--", color="blue", label="Mars Global Analogue")
+plt.plot(*AEMA02, linestyle="--", color="orange", label="Jezero Dust Analogue")
 
 # Reference samples (solid with requested colors)
 for ref_name, ref_info in references.items():
