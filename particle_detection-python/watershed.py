@@ -20,7 +20,7 @@ from helper import extract_and_save_region_properties
 
 CSV_FOLDER = "./csv/watershed"
 os.makedirs(CSV_FOLDER, exist_ok=True)
-IMAGE_FOLDER = "./images"
+IMAGE_FOLDER = "./particle_detection-python/images"
 
 
 def watershed_grain_detection(image_name: str, resolution: str, opening_radius = 50) -> None:

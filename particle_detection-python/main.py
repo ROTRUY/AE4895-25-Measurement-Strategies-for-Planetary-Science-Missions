@@ -10,8 +10,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-
 if __name__ == "__main__":
-    threshold_grain_detection(image_name="Microscopetestimage.jpg", resolution="unknown", opening_radius=20)
-    watershed_grain_detection(image_name="Microscopetestimage.jpg", resolution="unknown", opening_radius=20)
+    threshold_grain_detection(image_name="AEQ01.jpeg", resolution="unknown", opening_radius=20)
+    watershed_grain_detection(image_name="AEQ01.jpeg", resolution="unknown", opening_radius=20)
     plot_histogram(resolution="unknown")

@@ -30,7 +30,7 @@ def extract_and_save_region_properties(csv_folder, image_name, regions, resoluti
         'intensity_max'
     ]
 
-    output_file = open(f'{csv_folder}/{image_name.split('.')[0]}.csv', 'w')
+    output_file = open(f"{csv_folder}/{image_name.split('.')[0]}.csv", 'w')
     logging.info(f"Writing to file {output_file}")
     output_file.write(("," + ",".join(property_list) + '\n'))  # writing all the lines with properties of every grain
 
