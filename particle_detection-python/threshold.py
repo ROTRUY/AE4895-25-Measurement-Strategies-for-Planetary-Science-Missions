@@ -21,7 +21,7 @@ from helper import extract_and_save_region_properties
 
 CSV_FOLDER = "./csv/threshold"
 os.makedirs(CSV_FOLDER, exist_ok=True)
-IMAGE_FOLDER = "./images"
+IMAGE_FOLDER = "./particle_detection-python/images"
 
 def threshold_grain_detection(image_name: str, resolution: str, opening_radius = 50):
     # step 1

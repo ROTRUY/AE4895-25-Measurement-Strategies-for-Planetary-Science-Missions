@@ -6,7 +6,7 @@ import pandas as pd
 
 from helper import request_csv_filepath
 
-FIGURES_FOLDER: str = "./figures"
+FIGURES_FOLDER: str = "./particle_detection-python/figures"
 
 
 def plot_histogram(resolution):
@@ -48,7 +48,7 @@ def plot_histogram(resolution):
     # ax.set_yscale('log')
     # plt.xlim([30, max(clipped_data)])
     csv_path = Path(csv_path)
-    histogram_path = f"{FIGURES_FOLDER}/{"_".join(csv_path.with_suffix("").parts)}-{param}.png".replace("csv_", "")
+    histogram_path = f"{FIGURES_FOLDER}/{'_'.join(csv_path.with_suffix('').parts)}-{param}.png".replace("csv_", "")
     logging.info(f"Saving plot: {histogram_path}")
     plt.savefig(histogram_path)
     plt.show()
