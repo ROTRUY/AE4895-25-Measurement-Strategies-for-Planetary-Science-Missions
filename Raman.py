@@ -141,208 +141,310 @@ references = [
 
 ### PLOTTING ###
 # New individual plots of analogues
-for item in analogues:
-    plt.figure(figsize=(14, 6))
-    plt.plot(item[1], item[2], label=item[3], color=item[4])
-    # Mark peaks
-    peakColour = "brown"
-    plt.scatter(*item[5], color=peakColour, marker='x')
-    for wn, tr in zip(*item[5]):
-        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
-    plt.xlabel('Wave Number (cm⁻¹)')
-    plt.ylabel('Relative Intensity (counts)')
-    plt.title(f"Raman Spectrum of {item[3]} with peaks")
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f"RamanPlots\\{item[0]}_WP_N.png", dpi=500)
-    plt.close()
+# for item in analogues:
+#     plt.figure(figsize=(14, 6))
+#     plt.plot(item[1], item[2], label=item[3], color=item[4])
+#     # Mark peaks
+#     peakColour = "brown"
+#     plt.scatter(*item[5], color=peakColour, marker='x')
+#     for wn, tr in zip(*item[5]):
+#         plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+#     plt.xlabel('Wave Number (cm⁻¹)')
+#     plt.ylabel('Relative Intensity (counts)')
+#     plt.title(f"Raman Spectrum of {item[3]} with peaks")
+#     plt.legend()
+#     plt.grid()
+#     plt.tight_layout()
+#     plt.savefig(f"RamanPlots\\{item[0]}_WP_N.png", dpi=500)
+#     plt.close()
 
 # New individual plots of references
-for item in references:
-    plt.figure(figsize=(14, 6))
-    plt.plot(item[1], item[2], label=item[3], color=item[4])
-    # Mark peaks
-    peakColour = "brown"
-    plt.scatter(*item[5], color=peakColour, marker='x')
-    for wn, tr in zip(*item[5]):
-        plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
-    plt.xlabel('Wave Number (cm⁻¹)')
-    plt.ylabel('Relative Intensity (counts)')
-    plt.title(f"Raman Spectrum of {item[3]} with peaks")
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f"RamanPlots\\{item[0]}_WP_N.png", dpi=500)
-    plt.close()
+# for item in references:
+#     plt.figure(figsize=(14, 6))
+#     plt.plot(item[1], item[2], label=item[3], color=item[4])
+#     # Mark peaks
+#     peakColour = "brown"
+#     plt.scatter(*item[5], color=peakColour, marker='x')
+#     for wn, tr in zip(*item[5]):
+#         plt.text(wn, tr, f"{wn:.1f}", fontsize=12, color=peakColour)
+#     plt.xlabel('Wave Number (cm⁻¹)')
+#     plt.ylabel('Relative Intensity (counts)')
+#     plt.title(f"Raman Spectrum of {item[3]} with peaks")
+#     plt.legend()
+#     plt.grid()
+#     plt.tight_layout()
+#     plt.savefig(f"RamanPlots\\{item[0]}_WP_N.png", dpi=500)
+#     plt.close()
 
 # Stacked Hematite + RUFF Hematite
-fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
-
-spectra = [
-    (AEFE01_wave, AEFE01_intensity, AEFE01_peaks, "Hematite (AEFE01)", "red"),
-    (AEFE01_RUFF_wave, AEFE01_RUFF_intensity, AEFE01_RUFF_peaks, " RUFF Hematite", "red"),
-]
-
-for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
-
-    ax.plot(wave, intensity, color=color, label=label)
-    ax.scatter(*peaks, color="brown", marker="x")
-
-    for wn, tr in zip(*peaks):
-        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
-
-    ax.set_ylabel("Relative Intensity (counts)")
-    ax.legend()
-    ax.grid()
-
-axes[-1].set_xlabel("Wave Number (cm⁻¹)")
-
-plt.suptitle("Raman Hematite Spectra Comparison")
-plt.tight_layout()
-plt.savefig("RamanPlots\\Stacked_Spectra_Hematite.png", dpi=500)
-plt.close()
+# fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+# 
+# spectra = [
+#     (AEFE01_wave, AEFE01_intensity, AEFE01_peaks, "Hematite (AEFE01)", "red"),
+#     (AEFE01_RUFF_wave, AEFE01_RUFF_intensity, AEFE01_RUFF_peaks, " RUFF Hematite", "red"),
+# ]
+# 
+# for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+# 
+#     ax.plot(wave, intensity, color=color, label=label)
+#     ax.scatter(*peaks, color="brown", marker="x")
+# 
+#     for wn, tr in zip(*peaks):
+#         ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+# 
+#     ax.set_ylabel("Relative Intensity (counts)")
+#     ax.legend()
+#     ax.grid()
+# 
+# axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+# 
+# plt.suptitle("Raman Hematite Spectra Comparison")
+# plt.tight_layout()
+# plt.savefig("RamanPlots\\Stacked_Spectra_Hematite.png", dpi=500)
+# plt.close()
 
 # Stacked Magnetite + RUFF Magnetite
-fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
-
-spectra = [
-    (AEFE02_wave, AEFE02_intensity, AEFE02_peaks, "Magnetite (AEFE02)", "black"),
-    (AEFE02_RUFF_wave, AEFE02_RUFF_intensity, AEFE02_RUFF_peaks, " RUFF Magnetite", "black"),
-]
-
-for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
-
-    ax.plot(wave, intensity, color=color, label=label)
-    ax.scatter(*peaks, color="brown", marker="x")
-
-    for wn, tr in zip(*peaks):
-        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
-
-    ax.set_ylabel("Relative Intensity (counts)")
-    ax.legend()
-    ax.grid()
-
-axes[-1].set_xlabel("Wave Number (cm⁻¹)")
-
-plt.suptitle("Raman Magnetite Spectra Comparison")
-plt.tight_layout()
-plt.savefig("RamanPlots\\Stacked_Spectra_Magnetite.png", dpi=500)
-plt.close()
+# fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+# 
+# spectra = [
+#     (AEFE02_wave, AEFE02_intensity, AEFE02_peaks, "Magnetite (AEFE02)", "black"),
+#     (AEFE02_RUFF_wave, AEFE02_RUFF_intensity, AEFE02_RUFF_peaks, " RUFF Magnetite", "black"),
+# ]
+# 
+# for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+# 
+#     ax.plot(wave, intensity, color=color, label=label)
+#     ax.scatter(*peaks, color="brown", marker="x")
+# 
+#     for wn, tr in zip(*peaks):
+#         ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+# 
+#     ax.set_ylabel("Relative Intensity (counts)")
+#     ax.legend()
+#     ax.grid()
+# 
+# axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+# 
+# plt.suptitle("Raman Magnetite Spectra Comparison")
+# plt.tight_layout()
+# plt.savefig("RamanPlots\\Stacked_Spectra_Magnetite.png", dpi=500)
+# plt.close()
 
 # Stacked Olivine + RUFF Olivine
-fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
-
-spectra = [
-    (AEOL01_wave, AEOL01_intensity, AEOL01_peaks, "Olivine (AEOL01)", "green"),
-    (AEOL01_RUFF_wave, AEOL01_RUFF_intensity, AEOL01_RUFF_peaks, " RUFF Olivine", "green"),
-]
-
-for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
-
-    ax.plot(wave, intensity, color=color, label=label)
-    ax.scatter(*peaks, color="brown", marker="x")
-
-    for wn, tr in zip(*peaks):
-        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
-
-    ax.set_ylabel("Relative Intensity (counts)")
-    ax.legend()
-    ax.grid()
-
-axes[-1].set_xlabel("Wave Number (cm⁻¹)")
-
-plt.suptitle("Raman Olivine Spectra Comparison")
-plt.tight_layout()
-plt.savefig("RamanPlots\\Stacked_Spectra_Olivine.png", dpi=500)
-plt.close()
+# fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+# 
+# spectra = [
+#     (AEOL01_wave, AEOL01_intensity, AEOL01_peaks, "Olivine (AEOL01)", "green"),
+#     (AEOL01_RUFF_wave, AEOL01_RUFF_intensity, AEOL01_RUFF_peaks, " RUFF Olivine", "green"),
+# ]
+# 
+# for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+# 
+#     ax.plot(wave, intensity, color=color, label=label)
+#     ax.scatter(*peaks, color="brown", marker="x")
+# 
+#     for wn, tr in zip(*peaks):
+#         ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+# 
+#     ax.set_ylabel("Relative Intensity (counts)")
+#     ax.legend()
+#     ax.grid()
+# 
+# axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+# 
+# plt.suptitle("Raman Olivine Spectra Comparison")
+# plt.tight_layout()
+# plt.savefig("RamanPlots\\Stacked_Spectra_Olivine.png", dpi=500)
+# plt.close()
 
 # Stacked Quartz + RUFF Quartz
-fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
-
-spectra = [
-    (AEQ01_wave, AEQ01_intensity, AEQ01_peaks, "Quartz (AEQ01)", "blue"),
-    (AEQ01_RUFF_wave, AEQ01_RUFF_intensity, AEQ01_RUFF_peaks, " RUFF Quartz", "blue"),
-]
-
-for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
-
-    ax.plot(wave, intensity, color=color, label=label)
-    ax.scatter(*peaks, color="brown", marker="x")
-
-    for wn, tr in zip(*peaks):
-        ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
-
-    ax.set_ylabel("Relative Intensity (counts)")
-    ax.legend()
-    ax.grid()
-
-axes[-1].set_xlabel("Wave Number (cm⁻¹)")
-
-plt.suptitle("Raman Quartz Spectra Comparison")
-plt.tight_layout()
-plt.savefig("RamanPlots\\Stacked_Spectra_Quartz.png", dpi=500)
-plt.close()
+# fig, axes = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+# 
+# spectra = [
+#     (AEQ01_wave, AEQ01_intensity, AEQ01_peaks, "Quartz (AEQ01)", "blue"),
+#     (AEQ01_RUFF_wave, AEQ01_RUFF_intensity, AEQ01_RUFF_peaks, " RUFF Quartz", "blue"),
+# ]
+# 
+# for ax, (wave, intensity, peaks, label, color) in zip(axes, spectra):
+# 
+#     ax.plot(wave, intensity, color=color, label=label)
+#     ax.scatter(*peaks, color="brown", marker="x")
+# 
+#     for wn, tr in zip(*peaks):
+#         ax.text(wn, tr, f"{wn:.1f}", fontsize=10)
+# 
+#     ax.set_ylabel("Relative Intensity (counts)")
+#     ax.legend()
+#     ax.grid()
+# 
+# axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+# 
+# plt.suptitle("Raman Quartz Spectra Comparison")
+# plt.tight_layout()
+# plt.savefig("RamanPlots\\Stacked_Spectra_Quartz.png", dpi=500)
+# plt.close()
 
 # Stacked Analogues vs References
-for analogue in analogues:
-
-    fig, axes = plt.subplots(5, 1, figsize=(30, 15), sharex=True)
-
-    spectra = [
-        analogue,
-        references[0],
-        references[1],
-        references[2],
-        references[3],
-    ]
-
-    for ax, (name, wave, intensity, label, color, peaks) in zip(axes, spectra):
-
-        ax.plot(wave, intensity, color=color, label=label)
-        ax.scatter(*peaks, color="brown", marker="x")
-
-        for wn, tr in zip(*peaks):
-            ax.text(wn, tr, f"{wn:.1f}", fontsize=9)
-
-        ax.set_ylabel("Relative Intensity (counts)")
-        ax.legend()
-        ax.grid()
-
-    axes[-1].set_xlabel("Wave Number (cm⁻¹)")
-
-    plt.suptitle(f"Raman Analogue vs References Comparison ({analogue[3]})")
-    plt.tight_layout()
-
-    plt.savefig(f"RamanPlots\\Stacked_{analogue[0]}_vs_References.png", dpi=500)
-    plt.close()
+# for analogue in analogues:
+# 
+#     fig, axes = plt.subplots(5, 1, figsize=(30, 15), sharex=True)
+# 
+#     spectra = [
+#         analogue,
+#         references[0],
+#         references[1],
+#         references[2],
+#         references[3],
+#     ]
+# 
+#     for ax, (name, wave, intensity, label, color, peaks) in zip(axes, spectra):
+# 
+#         ax.plot(wave, intensity, color=color, label=label)
+#         ax.scatter(*peaks, color="brown", marker="x")
+# 
+#         for wn, tr in zip(*peaks):
+#             ax.text(wn, tr, f"{wn:.1f}", fontsize=9)
+# 
+#         ax.set_ylabel("Relative Intensity (counts)")
+#         ax.legend()
+#         ax.grid()
+# 
+#     axes[-1].set_xlabel("Wave Number (cm⁻¹)")
+# 
+#     plt.suptitle(f"Raman Analogue vs References Comparison ({analogue[3]})")
+#     plt.tight_layout()
+# 
+#     plt.savefig(f"RamanPlots\\Stacked_{analogue[0]}_vs_References.png", dpi=500)
+#     plt.close()
 
 # Analogue and References in same plots
-for analogue in analogues:
+# for analogue in analogues:
+# 
+#     plt.figure(figsize=(14,8))
+# 
+#     offset = 0
+#     offset_step = 0.6
+# 
+#     spectra = [analogue] + references
+# 
+#     for name, wave, intensity, label, color, peaks in spectra:
+# 
+#         plt.plot(wave, intensity + offset, label=label, color=color)
+# 
+#         # plot peaks
+#         peak_wave, peak_int = peaks
+#         plt.scatter(peak_wave, peak_int + offset, color="brown", marker="x", s=40)
+# 
+#         offset += offset_step
+# 
+#     plt.xlabel("Wave Number (cm⁻¹)")
+#     plt.ylabel("Relative Intensity (offset)")
+#     plt.title(f"Raman Comparison: {analogue[3]} vs References")
+#     plt.legend()
+#     plt.grid()
+# 
+#     plt.tight_layout()
+#     plt.savefig(f"RamanPlots\\Overlay_{analogue[0]}_vs_References.png", dpi=500)
+#     plt.close()
 
-    plt.figure(figsize=(14,8))
+# Plot all Raman spectra stacked together
+fig = plt.figure(figsize=(8.5, 7))
 
-    offset = 0
-    offset_step = 0.6
+offset = 0
+offset_step = 0.8
 
-    spectra = [analogue] + references
+all_spectra = analogues + references
 
-    for name, wave, intensity, label, color, peaks in spectra:
+for name, wave, intensity, label, color, peaks in all_spectra:
+    plt.plot(wave, intensity + offset, label=label, color=color, linewidth=2.5)
+    
+    # Plot peaks with offset
+    peak_wave, peak_int = peaks
+    plt.scatter(peak_wave, peak_int + offset, color="brown", marker="x", s=60, linewidth=2, zorder=5)
+    
+    # Add peak labels with better positioning
+    for wn, inten in zip(peak_wave, peak_int):
+        plt.text(wn, inten + offset + 0.05, f"{wn:.0f}", fontsize=8, color="brown", 
+                ha='center', va='bottom', fontweight='bold')
+    
+    offset += offset_step
 
-        plt.plot(wave, intensity + offset, label=label, color=color)
+plt.xlabel("Wavenumber (cm⁻¹)", fontsize=13, fontweight='bold')
+plt.ylabel("Relative Intensity (a.u.)", fontsize=13, fontweight='bold')
+plt.legend(loc='upper right', fontsize=9, framealpha=0.95, edgecolor='black')
+plt.grid(True, alpha=0.25, linestyle='--')
+plt.tight_layout()
 
-        # plot peaks
-        peak_wave, peak_int = peaks
-        plt.scatter(peak_wave, peak_int + offset, color="brown", marker="x", s=40)
+plt.savefig("RamanPlots\\Stacked_All_Spectra.png", dpi=500, bbox_inches='tight')
+plt.close()
 
-        offset += offset_step
+# Plot all Raman spectra stacked together with RUFF Hematite and Magnetite
+fig = plt.figure(figsize=(8.5, 7))
 
-    plt.xlabel("Wave Number (cm⁻¹)")
-    plt.ylabel("Relative Intensity (offset)")
-    plt.title(f"Raman Comparison: {analogue[3]} vs References")
-    plt.legend()
-    plt.grid()
+offset = 0
+offset_step = 0.8
 
-    plt.tight_layout()
-    plt.savefig(f"RamanPlots\\Overlay_{analogue[0]}_vs_References.png", dpi=500)
-    plt.close()
+# Use RUFF versions for hematite and magnetite instead of own data
+ruff_analogues_and_references = [
+    ("AEMA01", AEMA01_wave, AEMA01_intensity, "Martian Dust Analogue (AEMA01)", "blue", AEMA01_peaks),
+    ("AEMA02", AEMA02_wave, AEMA02_intensity, "Jezero Dust Analogue (AEMA02)",  "orange", AEMA02_peaks),
+    ("AEFE01_RUFF", AEFE01_RUFF_wave, AEFE01_RUFF_intensity, "Hematite (RUFF Reference)", "red", AEFE01_RUFF_peaks),
+    ("AEFE02_RUFF", AEFE02_RUFF_wave, AEFE02_RUFF_intensity, "Magnetite (RUFF Reference)", "black", AEFE02_RUFF_peaks),
+    ("AEOL01", AEOL01_wave, AEOL01_intensity, "Olivine (AEOL01)",   "green", AEOL01_peaks),
+    ("AEQ01",  AEQ01_wave,  AEQ01_intensity,  "Quartz (AEQ01)",    "pink", AEQ01_peaks),
+]
+
+for name, wave, intensity, label, color, peaks in ruff_analogues_and_references:
+    plt.plot(wave, intensity + offset, label=label, color=color, linewidth=2.5)
+    
+    # Plot peaks with offset
+    peak_wave, peak_int = peaks
+    plt.scatter(peak_wave, peak_int + offset, color="brown", marker="x", s=60, linewidth=2, zorder=5)
+    
+    # Add peak labels with better positioning
+    for wn, inten in zip(peak_wave, peak_int):
+        plt.text(wn, inten + offset + 0.05, f"{wn:.0f}", fontsize=8, color="brown", 
+                ha='center', va='bottom', fontweight='bold')
+    
+    offset += offset_step
+
+plt.xlabel("Wavenumber (cm⁻¹)", fontsize=13, fontweight='bold')
+plt.ylabel("Relative Intensity (a.u.)", fontsize=13, fontweight='bold')
+plt.legend(loc='upper right', fontsize=9, framealpha=0.95, edgecolor='black')
+plt.grid(True, alpha=0.25, linestyle='--')
+plt.tight_layout()
+
+plt.savefig("RamanPlots\\Stacked_All_Spectra_RUFF.png", dpi=500, bbox_inches='tight')
+plt.close()
+
+# Plot just the two analogues stacked together
+fig = plt.figure(figsize=(12, 6))
+
+offset = 0
+offset_step = 0.8
+
+analogues_only = [
+    ("AEMA01", AEMA01_wave, AEMA01_intensity, "Martian Dust Analogue (AEMA01)", "blue", AEMA01_peaks),
+    ("AEMA02", AEMA02_wave, AEMA02_intensity, "Jezero Dust Analogue (AEMA02)", "orange", AEMA02_peaks),
+]
+
+for name, wave, intensity, label, color, peaks in analogues_only:
+    plt.plot(wave, intensity + offset, label=label, color=color, linewidth=2.5)
+
+    # peaks + labels for analogue spectra
+    peak_wave, peak_int = peaks
+    plt.scatter(peak_wave, peak_int + offset, color="brown", marker="x", s=60, linewidth=2, zorder=5)
+    for wn, inten in zip(peak_wave, peak_int):
+        plt.text(wn, inten + offset + 0.05, f"{wn:.0f}", fontsize=8, color="brown", ha='center', va='bottom')
+
+    offset += offset_step
+
+plt.xlabel("Wavenumber (cm⁻¹)", fontsize=13, fontweight='bold')
+plt.ylabel("Relative Intensity (a.u.)", fontsize=13, fontweight='bold')
+plt.title("Stacked Analogues Only (AEMA01 & AEMA02)", fontsize=14, fontweight='bold', pad=10)
+plt.legend(loc='upper right', fontsize=10, framealpha=0.95, edgecolor='black')
+plt.grid(True, alpha=0.25, linestyle='--')
+plt.tight_layout()
+
+plt.savefig("RamanPlots\\Stacked_Analogues_Only.png", dpi=500, bbox_inches='tight')
+plt.close()
